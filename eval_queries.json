@@ -1,0 +1,148 @@
+{
+  "description": "Evaluation queries for Machine Learning Wikipedia RAG system",
+  "version": "1.0",
+  "queries": [
+    {
+      "query_id": "q1",
+      "query": "What is machine learning and how is it defined?",
+      "relevant_keywords": ["machine learning", "definition", "artificial intelligence", "algorithms", "data", "learn"],
+      "expected_topics": ["definition of ML", "relationship to AI"],
+      "difficulty": "easy"
+    },
+    {
+      "query_id": "q2",
+      "query": "What are the main types of machine learning?",
+      "relevant_keywords": ["supervised", "unsupervised", "reinforcement", "learning", "types", "categories"],
+      "expected_topics": ["supervised learning", "unsupervised learning", "reinforcement learning"],
+      "difficulty": "easy"
+    },
+    {
+      "query_id": "q3",
+      "query": "How does supervised learning work?",
+      "relevant_keywords": ["supervised", "labeled", "training", "input", "output", "classification", "regression"],
+      "expected_topics": ["labeled data", "training process", "prediction"],
+      "difficulty": "easy"
+    },
+    {
+      "query_id": "q4",
+      "query": "What is unsupervised learning and what are its applications?",
+      "relevant_keywords": ["unsupervised", "clustering", "patterns", "unlabeled", "structure", "dimensionality"],
+      "expected_topics": ["clustering", "pattern discovery", "no labels"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q5",
+      "query": "Explain reinforcement learning and its key concepts",
+      "relevant_keywords": ["reinforcement", "agent", "environment", "reward", "action", "policy", "state"],
+      "expected_topics": ["agent-environment interaction", "rewards", "learning from actions"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q6",
+      "query": "What are neural networks in machine learning?",
+      "relevant_keywords": ["neural", "network", "layers", "neurons", "deep", "perceptron", "weights"],
+      "expected_topics": ["artificial neurons", "layers", "deep learning"],
+      "difficulty": "easy"
+    },
+    {
+      "query_id": "q7",
+      "query": "What is deep learning and how does it relate to machine learning?",
+      "relevant_keywords": ["deep learning", "neural networks", "layers", "representation", "features", "hierarchical"],
+      "expected_topics": ["multiple layers", "feature learning", "subset of ML"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q8",
+      "query": "What are decision trees and how are they used in classification?",
+      "relevant_keywords": ["decision tree", "classification", "split", "nodes", "branches", "leaf", "rules"],
+      "expected_topics": ["tree structure", "decision rules", "classification"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q9",
+      "query": "What is overfitting in machine learning and how can it be prevented?",
+      "relevant_keywords": ["overfitting", "generalization", "training", "validation", "regularization", "complexity"],
+      "expected_topics": ["memorizing training data", "poor generalization", "prevention techniques"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q10",
+      "query": "What is the bias-variance tradeoff?",
+      "relevant_keywords": ["bias", "variance", "tradeoff", "error", "underfitting", "overfitting", "model"],
+      "expected_topics": ["bias error", "variance error", "model complexity"],
+      "difficulty": "hard"
+    },
+    {
+      "query_id": "q11",
+      "query": "What are support vector machines?",
+      "relevant_keywords": ["support vector", "SVM", "hyperplane", "margin", "classification", "kernel"],
+      "expected_topics": ["hyperplane separation", "maximum margin", "kernel trick"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q12",
+      "query": "How does clustering work in machine learning?",
+      "relevant_keywords": ["clustering", "groups", "k-means", "similar", "unsupervised", "centroid"],
+      "expected_topics": ["grouping similar data", "cluster centers", "unsupervised"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q13",
+      "query": "What is feature engineering and why is it important?",
+      "relevant_keywords": ["feature", "engineering", "selection", "extraction", "representation", "variables"],
+      "expected_topics": ["creating features", "selecting relevant features", "improving model performance"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q14",
+      "query": "What are the applications of machine learning?",
+      "relevant_keywords": ["applications", "image", "speech", "natural language", "medical", "recommendation", "autonomous"],
+      "expected_topics": ["computer vision", "NLP", "healthcare", "autonomous systems"],
+      "difficulty": "easy"
+    },
+    {
+      "query_id": "q15",
+      "query": "What is the history of machine learning?",
+      "relevant_keywords": ["history", "Arthur Samuel", "1950", "developed", "early", "evolution", "origins"],
+      "expected_topics": ["origins", "key milestones", "development over time"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q16",
+      "query": "What is gradient descent and how is it used in training?",
+      "relevant_keywords": ["gradient", "descent", "optimization", "loss", "function", "minimize", "learning rate"],
+      "expected_topics": ["optimization algorithm", "minimizing loss", "parameter updates"],
+      "difficulty": "hard"
+    },
+    {
+      "query_id": "q17",
+      "query": "What is cross-validation in machine learning?",
+      "relevant_keywords": ["cross-validation", "k-fold", "validation", "training", "test", "evaluation"],
+      "expected_topics": ["model evaluation", "splitting data", "preventing overfitting"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q18",
+      "query": "What are ensemble methods in machine learning?",
+      "relevant_keywords": ["ensemble", "random forest", "boosting", "bagging", "combine", "models"],
+      "expected_topics": ["combining models", "random forests", "boosting"],
+      "difficulty": "hard"
+    },
+    {
+      "query_id": "q19",
+      "query": "What ethical concerns exist around machine learning?",
+      "relevant_keywords": ["ethical", "bias", "fairness", "privacy", "discrimination", "transparency"],
+      "expected_topics": ["algorithmic bias", "fairness", "privacy concerns"],
+      "difficulty": "medium"
+    },
+    {
+      "query_id": "q20",
+      "query": "What is natural language processing in machine learning?",
+      "relevant_keywords": ["natural language", "NLP", "text", "language", "processing", "understanding"],
+      "expected_topics": ["text analysis", "language understanding", "applications"],
+      "difficulty": "medium"
+    }
+  ]
+}
+
+
