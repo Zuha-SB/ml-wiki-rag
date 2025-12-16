@@ -13,3 +13,5 @@ llama-cpp-python>=0.2.0  # For running Mistral-7B locally
 numpy>=1.24.0
 scikit-learn>=1.3.0
 huggingface_hub>=0.20.0  # For downloading models
+google-genai>=1.0.0  # Vertex AI Gen AI SDK
+python-dotenv>=1.0.0  # Load .env for API keys

@@ -9,6 +9,7 @@ A modern web interface for the RAG pipeline that showcases:
 
 import json
 import os
+import dotenv
 from flask import Flask, request, jsonify, render_template_string
 from pypdf import PdfReader
 import time
@@ -18,9 +19,14 @@ from retrieval import RAGRetriever
 from rag_pipeline import RAGPipeline
 from evaluation import load_evaluation_queries, RetrievalEvaluator, EvaluationQuery
 
-# Import generator
-from huggingface_hub import hf_hub_download
-from llama_cpp import Llama
+# Vertex AI Gen AI SDK for Gemini
+from google import genai
+from google.genai.types import HttpOptions, GenerateContentConfig
+# Legacy local generator (uncomment to use Llama locally):
+# from huggingface_hub import hf_hub_download
+# from llama_cpp import Llama
+
+dotenv.load_dotenv()
 
 app = Flask(__name__)
 
@@ -28,7 +34,11 @@ app = Flask(__name__)
 PDF_PATH = "Machine_learning.pdf"
 pipelines = {}  # Cache pipelines by strategy
 pages = []  # Cached PDF pages
-generator = None  # LLM generator
+generator = None  # Legacy LLM generator (for local Mistral/llama usage)
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+VERTEX_PROJECT = os.getenv("VERTEX_PROJECT_ID")
+VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "us-central1")
+_genai_client: genai.Client | None = None
 
 
 def load_pdf_pages():
@@ -133,40 +143,74 @@ def get_pipeline(strategy: str = "recursive", use_reranking: bool = True) -> RAG
     return pipelines[cache_key]
 
 
+def get_genai_client() -> genai.Client:
+    """Get or create the Vertex AI Gen AI client."""
+    global _genai_client
+    if _genai_client is not None:
+        return _genai_client
+    
+    if VERTEX_PROJECT:
+        # Vertex AI mode: uses project/location and ADC for auth
+        _genai_client = genai.Client(
+            vertexai=True,
+            project=VERTEX_PROJECT,
+            location=VERTEX_LOCATION,
+            http_options=HttpOptions(api_version="v1"),
+        )
+    else:
+        raise RuntimeError(
+            "Set VERTEX_PROJECT_ID (+ VERTEX_LOCATION) for Vertex AI, "
+            "or GEMINI_API_KEY for Gemini AI Studio."
+        )
+
+    return _genai_client
+
+
+def generate_with_gemini(prompt: str, max_tokens: int = 200, temperature: float = 0.7) -> str:
+    """Call Gemini via Vertex AI and return the response text."""
+    client = get_genai_client()
+    response = client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=prompt,
+        config=GenerateContentConfig(
+            temperature=temperature,
+            max_output_tokens=max_tokens,
+            top_p=0.9,
+        ),
+    )
+    text = getattr(response, "text", None)
+    if not text:
+        raise RuntimeError("Gemini did not return a textual response.")
+    return text.strip()
+
+
 def get_generator():
-    """Get or create the text generator (using Mistral-7B-Instruct via llama.cpp)."""
-    global generator
-    if generator is None:
-        print("Loading Mistral-7B-Instruct model...")
-        print("First run will download the model (~4.4GB). Please wait...")
-        
-        # Download quantized GGUF model from HuggingFace
-        model_path = hf_hub_download(
-            repo_id="TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
-            filename="mistral-7b-instruct-v0.2.Q4_K_M.gguf",
-        )
-        
-        print(f"Model downloaded to: {model_path}")
-        print("Loading model into memory...")
-        
-        # Load the model with llama.cpp
-        # n_ctx: context window, n_threads: CPU threads
-        generator = Llama(
-            model_path=model_path,
-            n_ctx=4096,  # Context window
-            n_threads=8,  # Adjust based on your CPU
-            n_gpu_layers=-1,  # Set >0 if you have GPU with CUDA
-            verbose=False
-        )
-        
-        print("Mistral-7B-Instruct ready!")
-    return generator
+    """Return the Gemini client while keeping the old loader commented."""
+    # Legacy Llama loader (uncomment to use local Mistral+llama again):
+    # global generator
+    # if generator is None:
+    #     print("Loading Mistral-7B-Instruct model...")
+    #     print("First run will download the model (~4.4GB). Please wait...")
+    #     model_path = hf_hub_download(
+    #         repo_id="TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
+    #         filename="mistral-7b-instruct-v0.2.Q4_K_M.gguf",
+    #     )
+    #     print(f"Model downloaded to: {model_path}")
+    #     print("Loading model into memory...")
+    #     generator = Llama(
+    #         model_path=model_path,
+    #         n_ctx=4096,
+    #         n_threads=8,
+    #         n_gpu_layers=-1,
+    #         verbose=False
+    #     )
+    #     print("Mistral-7B-Instruct ready!")
+    # return generator
+    return get_genai_client()
 
 
 def generate_response(prompt: str, max_tokens: int = 200) -> str:
-    """Generate a response using Mistral-7B-Instruct with RAG context."""
-    llm = get_generator()
-    
+    """Generate a response using Gemini with RAG context."""
     # Extract context and question from the prompt
     context_start = prompt.find("Context:\n")
     question_start = prompt.find("\n\nQuestion:")
@@ -179,9 +223,8 @@ def generate_response(prompt: str, max_tokens: int = 200) -> str:
         context = ""
         question = prompt
     
-    # Mistral instruction format with [INST] tags
-    # Craft a prompt that encourages synthesis, not copying
-    mistral_prompt = f"""<s>[INST] You are a knowledgeable assistant helping explain machine learning concepts.
+    # Instruction-style prompt for Gemini
+    model_prompt = f"""<s>[INST] You are a knowledgeable assistant helping explain machine learning concepts.
 
 Based on the following reference information, answer the user's question. 
 Synthesize the information into a clear, well-structured response. 
@@ -194,31 +237,32 @@ Reference Information:
 User Question: {question}
 
 Provide a helpful, synthesized answer: [/INST]"""
-    
+
     try:
-        # Generate response
-        output = llm(
-            mistral_prompt,
-            max_tokens=max_tokens,
-            temperature=0.7,
-            top_p=0.9,
-            stop=["</s>", "[INST]"],  # Stop tokens
-            echo=False  # Don't include prompt in output
-        )
-        
-        response = output["choices"][0]["text"].strip()
-        
+        response = generate_with_gemini(model_prompt, max_tokens=max_tokens)
         return response if response else "I could not generate a response based on the context."
-        
     except Exception as e:
         return f"Error generating response: {str(e)}"
 
+    # Legacy llama usage (uncomment to fall back to local model):
+    # llm = get_generator()
+    # try:
+    #     output = llm(
+    #         mistral_prompt,
+    #         max_tokens=max_tokens,
+    #         temperature=0.7,
+    #         top_p=0.9,
+    #         stop=["</s>", "[INST]"],
+    #         echo=False,
+    #     )
+    #     response = output["choices"][0]["text"].strip()
+    #     return response if response else "I could not generate a response based on the context."
+    # except Exception as e:
+    #     return f"Error generating response: {str(e)}"
+
 
 def generate_response_no_rag(question: str, max_tokens: int = 200) -> str:
-    """Generate a response using Mistral-7B-Instruct WITHOUT any RAG context."""
-    llm = get_generator()
-    
-    # Simple prompt without any retrieved context
+    """Generate a response using Gemini without any retrieved context."""
     mistral_prompt = f"""<s>[INST] You are a knowledgeable assistant helping explain machine learning concepts.
 
 Answer the following question about machine learning. Provide a clear, informative response based on your knowledge.
@@ -226,22 +270,28 @@ Answer the following question about machine learning. Provide a clear, informati
 Question: {question}
 
 Answer: [/INST]"""
-    
+
     try:
-        output = llm(
-            mistral_prompt,
-            max_tokens=max_tokens,
-            temperature=0.7,
-            top_p=0.9,
-            stop=["</s>", "[INST]"],
-            echo=False
-        )
-        
-        response = output["choices"][0]["text"].strip()
+        response = generate_with_gemini(mistral_prompt, max_tokens=max_tokens)
         return response if response else "I could not generate a response."
-        
     except Exception as e:
         return f"Error generating response: {str(e)}"
+
+    # Legacy llama usage (uncomment to fall back to local model):
+    # llm = get_generator()
+    # try:
+    #     output = llm(
+    #         mistral_prompt,
+    #         max_tokens=max_tokens,
+    #         temperature=0.7,
+    #         top_p=0.9,
+    #         stop=["</s>", "[INST]"],
+    #         echo=False,
+    #     )
+    #     response = output["choices"][0]["text"].strip()
+    #     return response if response else "I could not generate a response."
+    # except Exception as e:
+    #     return f"Error generating response: {str(e)}"
 
 
 # Load pages at startup
