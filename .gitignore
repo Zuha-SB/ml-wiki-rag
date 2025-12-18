@@ -25,6 +25,6 @@ dist/
 # Local data and outputs
 *.sqlite3
 *.db
+*.pdf
 cleaned_text.txt
 chunks_*.txt
-Machine_learning.pdf

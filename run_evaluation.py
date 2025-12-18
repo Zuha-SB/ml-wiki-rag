@@ -15,9 +15,9 @@ import json
 import time
 from pypdf import PdfReader
 
-from chunking import get_chunker
-from retrieval import RAGRetriever
-from evaluation import (
+from src.chunking import get_chunker
+from src.retrieval import RAGRetriever
+from src.evaluation import (
     load_evaluation_queries,
     RetrievalEvaluator,
     EvaluationReport,
@@ -43,7 +43,7 @@ def load_pdf(pdf_path: str = "Machine_learning.pdf") -> list:
 def main():
     parser = argparse.ArgumentParser(description="Run RAG evaluation")
     parser.add_argument("--pdf", default="Machine_learning.pdf", help="PDF file path")
-    parser.add_argument("--queries", default="eval_queries.json", help="Evaluation queries JSON")
+    parser.add_argument("--queries", default="data/eval_queries.json", help="Evaluation queries JSON")
     parser.add_argument("--output", default="evaluation_results.json", help="Output JSON file")
     args = parser.parse_args()
     

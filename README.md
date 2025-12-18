@@ -13,28 +13,28 @@ This project addresses three core evaluation criteria:
 ## 📸 Screenshots
 
 ### About / Overview
-![About](about.png)
+![About](images/about.png)
 
 ### Query Interface
 Ask questions and get AI-generated answers with source citations:
 
-![Query Example 1](query1.png)
+![Query Example 1](images/query1.png)
 
-![Query Example 2](query2.png)
+![Query Example 2](images/query2.png)
 
 ### Chunking Comparison
 Compare different chunking strategies side-by-side:
 
-![Chunking Strategies](chunking.png)
+![Chunking Strategies](images/chunking.png)
 
 ### Evaluation Dashboard
 Run comprehensive benchmarks and view metrics:
 
-![Evaluation](evaluation.png)
+![Evaluation](images/evaluation.png)
 
 ## 📦 Chunking Strategies
 
-Four chunking strategies are implemented in `chunking.py`:
+Four chunking strategies are implemented in `src/chunking.py`:
 
 | Strategy | Description | Pros | Cons |
 |----------|-------------|------|------|
@@ -46,7 +46,7 @@ Four chunking strategies are implemented in `chunking.py`:
 ### Example Usage
 
 ```python
-from chunking import get_chunker
+from src.chunking import get_chunker
 
 # Get a chunker by strategy name
 chunker = get_chunker("recursive", chunk_size=300, chunk_overlap=50)
@@ -57,7 +57,7 @@ chunks = chunker.chunk_document(pages)
 
 ## 🔍 Retrieval Approach
 
-The retrieval system in `retrieval.py` implements:
+The retrieval system in `src/retrieval.py` implements:
 
 ### 1. Dense Retrieval
 - **Sentence Transformers** (`all-MiniLM-L6-v2`) for semantic embeddings
@@ -104,7 +104,7 @@ Dense Retriever                    BM25 Retriever
 
 ## 📊 Retrieval Evaluation
 
-The evaluation framework in `evaluation.py` provides:
+The evaluation framework in `src/evaluation.py` provides:
 
 ### Metrics
 
@@ -118,7 +118,7 @@ The evaluation framework in `evaluation.py` provides:
 
 ### Evaluation Dataset
 
-`eval_queries.json` contains 20 carefully crafted evaluation queries with:
+`data/eval_queries.json` contains 20 carefully crafted evaluation queries with:
 - Query text
 - Relevant keywords for automated relevance judgment
 - Expected topics
@@ -126,15 +126,13 @@ The evaluation framework in `evaluation.py` provides:
 
 ### Running Evaluation
 
-```python
-from evaluation import run_comprehensive_evaluation, load_evaluation_queries
+```bash
+python run_evaluation.py
 
-# Load queries
-queries = load_evaluation_queries("eval_queries.json")
-
-# Run evaluation across all configurations
-reports = run_comprehensive_evaluation(pages, queries)
+# Results are saved to evaluation_results.json
 ```
+
+Or use the web UI's **Evaluation** tab to run benchmarks interactively.
 
 ## 🚀 Quick Start
 
@@ -149,7 +147,17 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Run the Web Application
+### 2. Get the Data
+
+This project works with any PDF document. The demo uses the Machine Learning Wikipedia article:
+
+1. Go to [Machine Learning - Wikipedia](https://en.wikipedia.org/wiki/Machine_learning)
+2. Click **Tools** → **Download as PDF** (in the sidebar)
+3. Save as `Machine_learning.pdf` in the project root
+
+Or use your own PDF — just update the filename in the app.
+
+### 3. Run the Web Application
 
 ```bash
 python app.py
@@ -157,32 +165,34 @@ python app.py
 
 Open http://127.0.0.1:5000 in your browser.
 
-### 3. CLI Usage
+### 4. Run Evaluation
 
 ```bash
-# Query with default settings
-python rag_pipeline.py --query "What is machine learning?"
+# Run comprehensive benchmark
+python run_evaluation.py
 
-# Specify chunking strategy
-python rag_pipeline.py --strategy semantic --query "How does deep learning work?"
-
-# Disable re-ranking for faster results
-python rag_pipeline.py --no-rerank --query "What are neural networks?"
+# Specify custom PDF and output
+python run_evaluation.py --pdf Machine_learning.pdf --output results.json
 ```
 
 ## 📁 Project Structure
 
 ```
 ml-wiki-rag/
-├── app.py               # Flask web application with modern UI
-├── rag_pipeline.py      # Main RAG pipeline integrating all components
-├── chunking.py          # Chunking strategies (Fixed, Sentence, Semantic, Recursive)
-├── retrieval.py         # Retrieval approaches (Dense, BM25, Hybrid, Re-ranking)
-├── evaluation.py        # Evaluation framework with IR metrics
-├── eval_queries.json    # Evaluation dataset with 20 test queries
-├── requirements.txt     # Python dependencies
-├── Machine_learning.pdf # Source document (ML Wikipedia)
-└── README.md           # This file
+├── src/                     # Core RAG library
+│   ├── __init__.py          # Package exports
+│   ├── chunking.py          # Chunking strategies (Fixed, Sentence, Semantic, Recursive)
+│   ├── retrieval.py         # Retrieval approaches (Dense, BM25, Hybrid, Re-ranking)
+│   ├── evaluation.py        # Evaluation framework with IR metrics
+│   └── rag_pipeline.py      # Main RAG pipeline integrating all components
+├── data/                    # Data files
+│   └── eval_queries.json    # Evaluation dataset with 20 test queries
+├── images/                  # Screenshots for documentation
+│   └── *.png
+├── app.py                   # Flask web application with modern UI
+├── run_evaluation.py        # CLI script to run benchmarks
+├── requirements.txt         # Python dependencies
+└── README.md                # This file
 ```
 
 ## 🎨 Web Interface Features
@@ -241,7 +251,7 @@ RAGPipeline(
 ### Adding a New Chunking Strategy
 
 ```python
-# In chunking.py
+# In src/chunking.py
 class MyCustomChunker(BaseChunker):
     def __init__(self):
         super().__init__("custom")
@@ -253,7 +263,7 @@ class MyCustomChunker(BaseChunker):
 
 ### Adding New Evaluation Queries
 
-Edit `eval_queries.json` to add more test queries:
+Edit `data/eval_queries.json` to add more test queries:
 
 ```json
 {

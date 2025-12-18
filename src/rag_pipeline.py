@@ -10,14 +10,12 @@ This module provides the main RAG pipeline that:
 This is the main interface for the RAG system.
 """
 
-import os
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from pypdf import PdfReader
 
-from chunking import Chunk, BaseChunker, get_chunker
-from retrieval import RAGRetriever, RetrievalResult
+from .chunking import Chunk, get_chunker
+from .retrieval import RAGRetriever, RetrievalResult
 
 
 @dataclass

@@ -14,14 +14,14 @@ from flask import Flask, request, jsonify, render_template_string
 from pypdf import PdfReader
 import time
 
-from chunking import get_chunker, compare_chunking_strategies, Chunk
-from retrieval import RAGRetriever
-from rag_pipeline import RAGPipeline
-from evaluation import load_evaluation_queries, RetrievalEvaluator, EvaluationQuery
+from src.chunking import get_chunker, compare_chunking_strategies
+from src.retrieval import RAGRetriever
+from src.rag_pipeline import RAGPipeline
+from src.evaluation import load_evaluation_queries, RetrievalEvaluator
 
-# Vertex AI Gen AI SDK for Gemini
 from google import genai
 from google.genai.types import HttpOptions, GenerateContentConfig
+
 # Legacy local generator (uncomment to use Llama locally):
 # from huggingface_hub import hf_hub_download
 # from llama_cpp import Llama
@@ -30,11 +30,11 @@ dotenv.load_dotenv()
 
 app = Flask(__name__)
 
-# Global state
 PDF_PATH = "Machine_learning.pdf"
-pipelines = {}  # Cache pipelines by strategy
-pages = []  # Cached PDF pages
-generator = None  # Legacy LLM generator (for local Mistral/llama usage)
+pipelines = {}
+pages = []
+# generator = None  #(uncomment to use Llama locally)
+
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 VERTEX_PROJECT = os.getenv("VERTEX_PROJECT_ID")
 VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "us-central1")
@@ -185,8 +185,8 @@ def generate_with_gemini(prompt: str, max_tokens: int = 200, temperature: float 
 
 
 def get_generator():
-    """Return the Gemini client while keeping the old loader commented."""
-    # Legacy Llama loader (uncomment to use local Mistral+llama again):
+    """Return the Gemini client."""
+    # Legacy Llama loader (uncomment to use local Mistral+llama):
     # global generator
     # if generator is None:
     #     print("Loading Mistral-7B-Instruct model...")
@@ -1510,10 +1510,8 @@ def api_chunking_comparison():
 
 @app.route('/api/evaluate')
 def api_evaluate():
-    from evaluation import RetrievalEvaluator, load_evaluation_queries
-    
     try:
-        eval_queries = load_evaluation_queries("eval_queries.json")
+        eval_queries = load_evaluation_queries("data/eval_queries.json")
     except FileNotFoundError:
         return jsonify({"error": "Evaluation queries file not found"}), 404
     

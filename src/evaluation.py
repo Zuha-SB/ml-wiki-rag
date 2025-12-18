@@ -14,13 +14,13 @@ to find the optimal configuration for a given dataset.
 
 import json
 import math
-from typing import List, Dict, Any, Optional, Tuple, Set
+from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
 from pathlib import Path
 import time
 
-from chunking import Chunk, BaseChunker, get_chunker
-from retrieval import RAGRetriever, RetrievalResult
+from .chunking import Chunk, get_chunker
+from .retrieval import RAGRetriever, RetrievalResult
 
 
 @dataclass

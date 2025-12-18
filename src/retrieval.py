@@ -21,7 +21,7 @@ import re
 from sentence_transformers import SentenceTransformer, CrossEncoder
 import faiss
 
-from chunking import Chunk
+from .chunking import Chunk
 
 
 @dataclass
