@@ -10,6 +10,28 @@ This project addresses three core evaluation criteria:
 2. **Retrieval Approach** - Hybrid dense + sparse retrieval with re-ranking
 3. **Retrieval Evaluation** - Comprehensive metrics (MRR, Precision@K, Recall@K, NDCG@K)
 
+## 📸 Screenshots
+
+### About / Overview
+![About](about.png)
+
+### Query Interface
+Ask questions and get AI-generated answers with source citations:
+
+![Query Example 1](query1.png)
+
+![Query Example 2](query2.png)
+
+### Chunking Comparison
+Compare different chunking strategies side-by-side:
+
+![Chunking Strategies](chunking.png)
+
+### Evaluation Dashboard
+Run comprehensive benchmarks and view metrics:
+
+![Evaluation](evaluation.png)
+
 ## 📦 Chunking Strategies
 
 Four chunking strategies are implemented in `chunking.py`:
@@ -250,7 +272,3 @@ Edit `eval_queries.json` to add more test queries:
 - [Cross-Encoders for Re-ranking](https://www.sbert.net/examples/applications/cross-encoder/README.html)
 - [BM25 Algorithm](https://en.wikipedia.org/wiki/Okapi_BM25)
 - [Reciprocal Rank Fusion](https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf)
-
-## 📝 License
-
-This project was created as a take-home assignment for demonstrating RAG pipeline design and implementation skills.
